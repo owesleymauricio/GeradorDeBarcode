@@ -1,23 +1,165 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/css/style.css">
-    <title>Barcode Generator</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/css/style.css">
+  <title>Gerador de Código de Barras</title>
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #444444;
+    }
+    h1{
+      font-size: 40px;
+      font-weight: bold;
+    }
+    #barcodeContainer {
+      text-align: center;
+      margin-top: 20px;
+    }
+    .barcode-container {
+      background-color: white;
+      padding: 10px;
+      border-radius: 5px;
+      display: inline-block;
+    }
+    .barcode {
+      display: flex;
+      margin-top: 10px;
+    }
+    .barcode-bit {
+      width: 2px;
+      height: 30px;
+      margin-right: 1px;
+    }
+    .black {
+      background-color: black;
+    }
+    .white {
+      background-color: white;
+    }
+    #inputContainer {
+      margin-bottom: 20px;
+    }
+    label {
+      font-weight: bold;
+      margin-right: 10px;
+    }
+    input {
+      padding: 5px;
+      font-size: 16px;
+      background-color: #918d8d;
+      border-radius: 4px;
+    }
+    button {
+      padding: 5px 10px;
+      font-size: 16px;
+      cursor: pointer;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+    }
+  </style>
 </head>
-
 <body>
-    <h1>Barcode Generator</h1>
-    <div id="barcodeContainer">
-        <input type="text" id="textInput">
-        <button id="generateBtn">Generate Barcode</button>
-    </div>
-    <div id="error-message" style="color: red; margin-top: 10px;"></div>
-    <div id="barcodeArea" class="barcode"></div>
+  <h1>Barcode Generator</h1>
+  <div id="inputContainer">
+    <label for="barcodeInput">Digite o Texto:</label>
+    <input type="text" id="barcodeInput">
+    <button onclick="generateBarcode()">Gerar Código de Barras</button>
+  </div>
 
-   <script src="/javascript/index.js"></script>
+  <div id="barcodeContainer">
+    <div class="barcode-container" id="barcodeOutput"></div>
+  </div>
+
+  <script>
+function generateBarcode() {
+    var barcodeInput = document.getElementById('barcodeInput').value;
+    var barcodeContainer = document.getElementById('barcodeOutput');
+
+    // Limpar código de barras anterior
+    barcodeContainer.innerHTML = '';
+
+    // Verificar se o campo de entrada está vazio
+    if (barcodeInput.trim() === '') {
+      // Mostrar mensagem de erro
+      alert('Por favor, digite algum texto para gerar o código de barras.');
+      return;
+    }
+
+    // Criar a div da classe barcode-container
+    var barcodeWrapper = document.createElement('div');
+    barcodeWrapper.className = 'barcode-container';
+
+    // Gerar o código de barras
+    var barcode = generateCode128(barcodeInput);
+
+    // Adicionar o código de barras à div wrapper
+    barcodeWrapper.appendChild(barcode);
+
+    // Adicionar a div wrapper ao contêiner
+    barcodeContainer.appendChild(barcodeWrapper);
+  }
+  function generateCode128(data) {
+  var barcode = document.createElement('div');
+  barcode.className = 'barcode';
+
+  // Caractere de início
+  var binary = '11010010000';
+
+  // Mapa de caracteres para representação binária
+  var charMap = {
+    '0': '00110', '1': '10001', '2': '01001', '3': '11000', '4': '00101',
+    '5': '10100', '6': '01100', '7': '00011', '8': '10010', '9': '01010',
+    'A': '00001', 'B': '10000', 'C': '01000', 'D': '11001', 'E': '00100',
+    'F': '10110', 'G': '01110', 'H': '10011', 'I': '01011', 'J': '11010',
+    'K': '00111', 'L': '10101', 'M': '01101', 'N': '11100', 'O': '00010',
+    'P': '10010', 'Q': '01010', 'R': '11011', 'S': '00110', 'T': '10100',
+    'U': '01100', 'V': '11101', 'W': '00011', 'X': '10011', 'Y': '01011',
+    'Z': '11010'
+  };
+
+  // Adicionar caractere de início
+  barcode.innerHTML += '<div class="barcode-bit"></div>';
+
+  // Converter entrada para maiúsculas
+  data = data.toUpperCase();
+
+  for (var i = 0; i < data.length; i++) {
+    var character = data[i];
+
+    // Adicionar um espaço entre os caracteres
+    barcode.innerHTML += '<div class="barcode-bit"></div>';
+
+    // Verificar se o caractere está no mapa
+    if (charMap.hasOwnProperty(character)) {
+      // Adicionar representação binária do caractere
+      for (var j = 0; j < 5; j++) {
+        barcode.innerHTML += '<div class="barcode-bit ' + (charMap[character][j] === '1' ? 'black' : 'white') + '"></div>';
+      }
+    } else {
+      // Adicionar representação binária padrão para caracteres desconhecidos
+      for (var k = 0; k < 5; k++) {
+        barcode.innerHTML += '<div class="barcode-bit ' + (binary[k] === '1' ? 'black' : 'white') + '"></div>';
+      }
+    }
+  }
+
+  // Caractere de parada
+  barcode.innerHTML += '<div class="barcode-bit"></div>';
+
+  return barcode;
+}
+    
+  </script>
 </body>
-
 </html>
